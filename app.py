@@ -1,90 +1,78 @@
 import streamlit as st
-import pandas as pd
 import joblib
+import pandas as pd
 
-# Page Config
+# Page Configuration
 st.set_page_config(
-    page_title="🌾 Crop Yield Prediction",
-    page_icon="🌱",
-    layout="wide"
+    page_title="Crop Yield Prediction",
+    page_icon="🌾",
+    layout="centered"
 )
 
-# Custom CSS
-st.markdown("""
-<style>
-.stApp{
-    background: linear-gradient(135deg,#d4fc79,#96e6a1);
-}
-
-.main-title{
-    text-align:center;
-    font-size:45px;
-    font-weight:bold;
-    color:#0b4f2c;
-}
-
-.glass{
-    background: rgba(255,255,255,0.2);
-    backdrop-filter: blur(10px);
-    padding:20px;
-    border-radius:20px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown('<p class="main-title">🌾 Smart Crop Yield Prediction</p>',
-            unsafe_allow_html=True)
-
 # Load Model
-try:
-    model = joblib.load("crop_yield_model.pkl")
-except Exception as e:
-    st.error(f"Model Loading Error: {e}")
-    st.stop()
+model = joblib.load("Model/crop_yield_model.pkl")
 
-# Inputs
-st.markdown('<div class="glass">', unsafe_allow_html=True)
+# Title
+st.title("🌾 Crop Yield Prediction System")
+st.markdown("Predict crop yield using Machine Learning (Random Forest Model)")
 
-crop = st.text_input("Crop Name")
+st.divider()
 
-state = st.text_input("State Name")
+# User Inputs
+st.subheader("Enter Crop Details")
+
+crop = st.number_input(
+    "Crop Code",
+    min_value=0,
+    value=0,
+    help="Enter encoded crop value"
+)
+
+state = st.number_input(
+    "State Code",
+    min_value=0,
+    value=0,
+    help="Enter encoded state value"
+)
 
 cost_a2fl = st.number_input(
-    "Cost of Cultivation (₹/Hectare) A2+FL",
-    min_value=0.0
+    "Cost of Cultivation (A2+FL)",
+    min_value=0.0,
+    value=10000.0
 )
 
 cost_c2 = st.number_input(
-    "Cost of Cultivation (₹/Hectare) C2",
-    min_value=0.0
+    "Cost of Cultivation (C2)",
+    min_value=0.0,
+    value=20000.0
 )
 
-production_c2 = st.number_input(
-    "Cost of Production (₹/Quintal) C2",
-    min_value=0.0
+production_cost = st.number_input(
+    "Cost of Production (C2)",
+    min_value=0.0,
+    value=1500.0
 )
 
-st.markdown('</div>', unsafe_allow_html=True)
+# Prediction Button
+if st.button("Predict Yield", use_container_width=True):
 
-if st.button("🌱 Predict Yield"):
+    input_data = pd.DataFrame(
+        [[crop, state, cost_a2fl, cost_c2, production_cost]],
+        columns=[
+            "Crop",
+            "State",
+            "Cost of Cultivation (`/Hectare) A2+FL",
+            "Cost of Cultivation (`/Hectare) C2",
+            "Cost of Production (`/Quintal) C2"
+        ]
+    )
 
-    input_df = pd.DataFrame({
-        "Crop":[crop],
-        "State":[state],
-        "Cost of Cultivation (`/Hectare) A2+FL":[cost_a2fl],
-        "Cost of Cultivation (`/Hectare) C2":[cost_c2],
-        "Cost of Production (`/Quintal) C2":[production_c2]
-    })
+    prediction = model.predict(input_data)
 
-    try:
-        prediction = model.predict(input_df)
+    st.success(f"Predicted Yield: {prediction[0]:.2f} Quintal/Hectare")
 
-        st.success("Prediction Completed Successfully")
+    st.balloons()
 
-        st.metric(
-            label="🌾 Predicted Yield",
-            value=f"{prediction[0]:.2f}"
-        )
-
-    except Exception as e:
-        st.error(f"Prediction Error: {e}")
+# Footer
+st.divider()
+st.caption("Developed using Python, Scikit-Learn and Streamlit")
