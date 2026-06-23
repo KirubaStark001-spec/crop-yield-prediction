@@ -1,78 +1,47 @@
 import streamlit as st
-import joblib
-import pandas as pd
+import sys
+import os
 
-# Page Configuration
 st.set_page_config(
     page_title="Crop Yield Prediction",
     page_icon="🌾",
-    layout="centered"
+    layout="wide"
 )
 
-# Load Model
-model = joblib.load("Model/crop_yield_model.pkl")
+st.title("🌾 Crop Yield Prediction")
+st.write("## Debug Information")
 
-# Title
-st.title("🌾 Crop Yield Prediction System")
-st.markdown("Predict crop yield using Machine Learning (Random Forest Model)")
+st.write("### Python Version")
+st.code(sys.version)
 
-st.divider()
+st.write("### Current Directory")
+st.code(os.getcwd())
 
-# User Inputs
-st.subheader("Enter Crop Details")
+st.write("### Files in Repository")
+st.write(os.listdir())
 
-crop = st.number_input(
-    "Crop Code",
-    min_value=0,
-    value=0,
-    help="Enter encoded crop value"
-)
+try:
+    import joblib
+    st.success("✅ Joblib Installed Successfully")
+except Exception as e:
+    st.error(f"❌ Joblib Error: {e}")
 
-state = st.number_input(
-    "State Code",
-    min_value=0,
-    value=0,
-    help="Enter encoded state value"
-)
+try:
+    import sklearn
+    st.success("✅ Scikit-Learn Installed Successfully")
+except Exception as e:
+    st.error(f"❌ Scikit-Learn Error: {e}")
 
-cost_a2fl = st.number_input(
-    "Cost of Cultivation (A2+FL)",
-    min_value=0.0,
-    value=10000.0
-)
+try:
+    import pandas
+    st.success("✅ Pandas Installed Successfully")
+except Exception as e:
+    st.error(f"❌ Pandas Error: {e}")
 
-cost_c2 = st.number_input(
-    "Cost of Cultivation (C2)",
-    min_value=0.0,
-    value=20000.0
-)
+try:
+    import numpy
+    st.success("✅ NumPy Installed Successfully")
+except Exception as e:
+    st.error(f"❌ NumPy Error: {e}")
 
-production_cost = st.number_input(
-    "Cost of Production (C2)",
-    min_value=0.0,
-    value=1500.0
-)
-
-# Prediction Button
-if st.button("Predict Yield", use_container_width=True):
-
-    input_data = pd.DataFrame(
-        [[crop, state, cost_a2fl, cost_c2, production_cost]],
-        columns=[
-            "Crop",
-            "State",
-            "Cost of Cultivation (`/Hectare) A2+FL",
-            "Cost of Cultivation (`/Hectare) C2",
-            "Cost of Production (`/Quintal) C2"
-        ]
-    )
-
-    prediction = model.predict(input_data)
-
-    st.success(f"Predicted Yield: {prediction[0]:.2f} Quintal/Hectare")
-
-    st.balloons()
-
-# Footer
-st.divider()
-st.caption("Developed using Python, Scikit-Learn and Streamlit")
+st.write("### End of Debug")
